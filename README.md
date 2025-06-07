@@ -17,3 +17,5 @@ A web tool to analyze public GitHub repositories and present insights using the 
 2. Install dependencies: `npm install`
 3. Navigate to `\src` directory: `cd src`
 4. Start the server: `node app.js`
+
+Working Demo- https://www.loom.com/share/25371507dec54a5ca3a7d0e9782ab59c?sid=108f0e80-3a76-4c9f-899c-aee51697c35f
