@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Repository Analysis - <%= data.metadata.name %></title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <a href="/" class="inline-block mb-4 text-blue-600 hover:text-blue-800">
+          <i class="fas fa-arrow-left mr-2"></i>Back to Search
+        </a>
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">
+          <i class="fab fa-github mr-2"></i><%= data.metadata.name %>
+        </h1>
+        <p class="text-gray-600"><%= data.metadata.description %></p>
+      </div>
+
+      <!-- Repository Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex items-center">
+            <i class="fas fa-star text-yellow-400 text-2xl mr-3"></i>
+            <div>
+              <p class="text-sm text-gray-600">Stars</p>
+              <p class="text-2xl font-bold"><%= (data.metadata.stargazers_count || 0).toLocaleString() %></p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex items-center">
+            <i class="fas fa-code-branch text-blue-400 text-2xl mr-3"></i>
+            <div>
+              <p class="text-sm text-gray-600">Forks</p>
+              <p class="text-2xl font-bold"><%= (data.metadata.forks_count || 0).toLocaleString() %></p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex items-center">
+            <i class="fas fa-code text-green-400 text-2xl mr-3"></i>
+            <div>
+              <p class="text-sm text-gray-600">Languages</p>
+              <p class="text-2xl font-bold"><%= Object.keys(data.languages || {}).length %></p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex items-center">
+            <i class="fas fa-users text-purple-400 text-2xl mr-3"></i>
+            <div>
+              <p class="text-sm text-gray-600">Contributors</p>
+              <p class="text-2xl font-bold"><%= (data.contributors || []).length.toLocaleString() %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Commit Activity Chart -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-xl font-bold mb-4">Commit Activity (Last Year)</h2>
+          <% if (data.commitActivity && data.commitActivity.length > 0) { %>
+            <canvas id="commitActivityChart"></canvas>
+          <% } else { %>
+            <p class="text-gray-500 text-center py-4">No commit activity data available</p>
+          <% } %>
+        </div>
+
+        <!-- Language Distribution Chart -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-xl font-bold mb-4">Language Distribution</h2>
+          <% if (Object.keys(data.languages || {}).length > 0) { %>
+            <canvas id="languageChart"></canvas>
+          <% } else { %>
+            <p class="text-gray-500 text-center py-4">No language data available</p>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Contributors Section -->
+      <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <h2 class="text-xl font-bold mb-4">Top Contributors</h2>
+        <% if (data.contributors && data.contributors.length > 0) { %>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <% data.contributors.slice(0, 6).forEach(contributor => { %>
+              <div class="flex items-center space-x-4 p-4 border rounded-lg">
+                <img src="<%= contributor.avatar_url %>" alt="<%= contributor.login %>" class="w-12 h-12 rounded-full">
+                <div>
+                  <p class="font-semibold"><%= contributor.login %></p>
+                  <p class="text-sm text-gray-600"><%= contributor.contributions %> contributions</p>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <p class="text-gray-500 text-center py-4">No contributor data available</p>
+        <% } %>
+      </div>
+
+      <!-- Recent Commits -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold mb-4">Recent Commits</h2>
+        <% if (data.commits && data.commits.length > 0) { %>
+          <div class="space-y-4">
+            <% data.commits.slice(0, 5).forEach(commit => { %>
+              <div class="border-b pb-4">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="font-semibold"><%= commit.commit.message.split('\n')[0] %></p>
+                  <span class="text-sm text-gray-500">
+                    <%= new Date(commit.commit.author.date).toLocaleDateString() %>
+                  </span>
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                  <img src="<%= commit.author?.avatar_url %>" alt="<%= commit.commit.author.name %>" 
+                       class="w-6 h-6 rounded-full mr-2">
+                  <span><%= commit.commit.author.name %></span>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <p class="text-gray-500 text-center py-4">No commit data available</p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden data container -->
+  <div id="chartData" 
+       data-commit-activity='<%- JSON.stringify(data.commitActivity || []) %>'
+       data-languages='<%- JSON.stringify(data.languages || {}) %>'
+       style="display: none;">
+  </div>
+
+  <script>
+    // Get data from hidden container
+    const chartData = document.getElementById('chartData');
+    const commitActivity = JSON.parse(chartData.dataset.commitActivity);
+    const languages = JSON.parse(chartData.dataset.languages);
+
+    // Only create charts if we have data
+    if (commitActivity && commitActivity.length > 0) {
+      // Commit Activity Chart
+      const commitActivityCtx = document.getElementById('commitActivityChart').getContext('2d');
+      new Chart(commitActivityCtx, {
+        type: 'line',
+        data: {
+          labels: commitActivity.map((_, i) => `Week ${i + 1}`),
+          datasets: [{
+            label: 'Commits',
+            data: commitActivity.map(w => w.total),
+            borderColor: 'rgb(59, 130, 246)',
+            tension: 0.1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    if (Object.keys(languages).length > 0) {
+      // Language Distribution Chart
+      const languageCtx = document.getElementById('languageChart').getContext('2d');
+      const totalBytes = Object.values(languages).reduce((a, b) => a + b, 0);
+      const languagePercentages = Object.values(languages).map(bytes => ((bytes / totalBytes) * 100).toFixed(1));
+      
+      new Chart(languageCtx, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(languages),
+          datasets: [{
+            data: languagePercentages,
+            backgroundColor: [
+              '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+              '#EC4899', '#14B8A6', '#F97316', '#6366F1', '#84CC16'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'right'
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
