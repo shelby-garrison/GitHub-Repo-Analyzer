@@ -13,6 +13,7 @@ A web tool to analyze public GitHub repositories and present insights using the 
 - Tailwind CSS
 
 ## Getting Started
-1. Install dependencies: `npm install`
-2. Build Tailwind CSS: `npm run build:css`
-3. Start the server: `npm run dev`
+1. Clone this repo
+2. Install dependencies: `npm install`
+3. Navigate to `\src` directory: `cd src`
+4. Start the server: `node app.js`
